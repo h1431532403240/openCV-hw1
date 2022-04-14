@@ -276,11 +276,6 @@ def perspective_transform(window):
     global cv2image
     global all_mouse
     all_mouse = []
-    tmp_image = original_img
-    size = original_img.shape
-    height = size[0]
-    weight = size[1]      
-    
 
     if original_img is None:
         return
