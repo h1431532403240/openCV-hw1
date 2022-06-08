@@ -4,6 +4,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 from matplotlib import pyplot as plt
 import numpy as np
+import os
+import sys
 import math
 
 file_path_open = ''
@@ -16,7 +18,14 @@ all_mouse = []
 def show_image(window):
     global cv2image
     size = cv2image.shape
-    window.geometry('%dx%d' % (size[1], size[0]))
+    w = size[1]
+    l = size[0]
+    if w > 1000 or l > 1000:
+        proportion = w / l
+        l = 1000
+        w = 1000 * proportion
+        cv2image = cv.resize(cv2image, (int(w), int(l)))
+    window.geometry('%dx%d' % (int(w), int(l)))
     img = cv.cvtColor(cv2image, cv.COLOR_BGR2RGB)
     imgTk = ImageTk.PhotoImage(Image.fromarray(img))
     lbl_2 = tk.Label(window, image=imgTk)
@@ -324,6 +333,40 @@ def histogram_equalization(window):
     img_eq = cv.equalizeHist(cv2image)
     plt.hist(img_eq.ravel(), 256, [0, 256])
     plt.show()
+
+
+# 影像合併
+def image_merge(window):
+    global original_img
+    global cv2image
+
+    # 開啟視窗選擇資料夾
+    img_path = filedialog.askdirectory(title=u'選擇資料夾')
+
+    if img_path is None:
+        print('找不到路徑')
+        return
+
+    print(img_path)
+
+    img_list = os.listdir(img_path)
+    imgs = []
+
+    for img_name in img_list:
+        p_img = os.path.join(img_path, img_name)
+        img = cv.imread(p_img)
+        if img is None:
+            continue
+        imgs.append(img)
+
+    stitcher = cv.Stitcher.create()
+    status, pano = stitcher.stitch(imgs)
+    if status != cv.Stitcher_OK:
+        print('合併失敗: %d' % status)
+        return
+
+    cv2image = pano
+    show_image(window)
 
 
 def update(x):

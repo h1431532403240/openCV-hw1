@@ -53,6 +53,11 @@ processingmenu.add_command(label='透視投影轉換(Perspective Transform)',
                            command=lambda: func.perspective_transform(window=window))
 appmenu.add_cascade(label='影像處理(Image Processing)', menu=processingmenu)
 
+othermenu = tk.Menu(appmenu, tearoff=0)
+othermenu.add_command(
+    label='合併影像(Image Merge)', command=lambda: func.image_merge(window=window))
+appmenu.add_cascade(label='其他功能(others)', menu=othermenu)
+
 appmenu.add_command(label='離開(Quit)', command=lambda: exit())
 
 window.config(menu=appmenu)
